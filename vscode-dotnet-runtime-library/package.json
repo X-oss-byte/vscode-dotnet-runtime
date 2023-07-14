@@ -27,7 +27,7 @@
 	"dependencies": {
 		"@types/chai-as-promised": "^7.1.4",
 		"@types/mocha": "^9.0.0",
-		"@types/node": "16.11.7",
+		"@types/node": "16.18.36",
 		"@types/request-promise-native": "^1.0.18",
 		"@types/rimraf": "3.0.2",
 		"@types/semver": "^7.3.9",
