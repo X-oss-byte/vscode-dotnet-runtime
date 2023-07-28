@@ -7,7 +7,7 @@ from pathlib import Path
 def main():
     """Check if the dependency updates in package-lock are also updated in yarn.locks"""
     targetBranch = sys.argv[1] # Script is called with PR Target Branch Name, Fulfilled by AzDo
-    subprocess.getoutput(f"git fetch --all")
+    subprocess.getoutput("git fetch --all")
     subprocess.getoutput(f"git pull origin {targetBranch}")
     VerifyDependencies(targetBranch)
     sys.exit(0)
@@ -52,27 +52,23 @@ def GetUnmatchedDiffs(yarnDiff, npmDiff):
                                         # v Remove + or - from diff and additional git diff context lines
     yarnDeps = GetYarnDependencyUpdates([line[1:] for line in yarnDiff.splitlines() if line.startswith("+") or line.startswith("-")])
     npmDeps = GetNpmDependencyUpdates([line[1:] for line in npmDiff.splitlines() if line.startswith("+") or line.startswith("-")])
-    outOfSyncDependencies = []
-    for dep in npmDeps:
-        if dep in yarnDeps and yarnDeps[dep] == npmDeps[dep]: # version changes match
-            continue
-        else:
-            outOfSyncDependencies.append(dep)
-    return outOfSyncDependencies
+    return [
+        dep
+        for dep in npmDeps
+        if dep not in yarnDeps or yarnDeps[dep] != npmDeps[dep]
+    ]
 
 def NpmChangesMirrorYarnChanges(changedFiles, packageLockPath, targetBranch):
     """Returns successfully if yarn.lock matches packagelock changes, if not, throws exit code"""
     yarnLockFile = "yarn.lock"
     yarnLockPath = Path(os.path.join(os.path.dirname(packageLockPath), yarnLockFile))
     outOfDateYarnLocks = []
-    
+
     if yarnLockPath in changedFiles:
         yarnDiff = subprocess.getoutput(f"git diff origin/{targetBranch}.. -- {str(yarnLockPath)}")
         npmDiff = subprocess.getoutput(f"git diff origin/{targetBranch}..  -- {packageLockPath}")
         diffSetComplement = GetUnmatchedDiffs(yarnDiff, npmDiff)
-        if diffSetComplement == []:
-           pass
-        else:
+        if diffSetComplement != []:
             outOfDateYarnLocks.append((str(yarnLockPath), diffSetComplement))
     else:
         outOfDateYarnLocks.append(yarnLockPath)
