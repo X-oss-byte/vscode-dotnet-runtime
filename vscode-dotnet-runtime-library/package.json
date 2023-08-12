@@ -31,7 +31,7 @@
 		"@types/request-promise-native": "^1.0.18",
 		"@types/rimraf": "3.0.2",
 		"@types/semver": "^7.3.9",
-		"@types/shelljs": "0.8.9",
+		"@types/shelljs": "0.8.12",
 		"@types/vscode": "1.62.0",
 		"chai": "4.3.4",
 		"chai-as-promised": "^7.1.1",
